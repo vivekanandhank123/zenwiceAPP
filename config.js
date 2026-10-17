@@ -1,6 +1,6 @@
 window.ZW_CONFIG = {
   firebase: {
-    apiKey: "AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    apiKey: "AIzaSyBsFOeAzCdflVh76PKi2_oAoCecIza3als",
     authDomain: "zenwice.firebaseapp.com",
     projectId: "zenwice",
     appId: "1:375125280411:web:4e0c4b0a212ea4bbcba83e"
