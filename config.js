@@ -1,6 +1,5 @@
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 window.ZW_CONFIG = { firebase: {
-  apiKey: "AIzaSy…your pasted key…",
+
   authDomain: "zenwice.firebaseapp.com",
   projectId: "zenwice",
   storageBucket: "zenwice.firebasestorage.app",
