@@ -1,0 +1,28 @@
+rules_version = '2';
+// Zenwice Tracker security rules. Replace the owner email below with the same one as in config.js.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isOwner() { return signedIn() && request.auth.token.email in ['vivek@zenwice.com']; }
+    function linked() { return signedIn() && exists(/databases/$(database)/documents/roles/$(request.auth.uid)); }
+    function level() { return get(/databases/$(database)/documents/roles/$(request.auth.uid)).data.level; }
+    function isAdmin() { return isOwner() || (linked() && level() in ['manager', 'lead', 'super']); }
+    function self(uid) { return signedIn() && request.auth.uid == uid; }
+
+    // Team list, process template, holidays: everyone signed in can read (new users need the team list to pick their name); only the Boss changes them.
+    match /config/{doc} { allow read: if signedIn(); allow write: if isOwner(); }
+    match /roles/{uid} { allow read: if signedIn(); allow write: if isOwner(); }
+    match /people/{uid} { allow read: if signedIn(); allow write: if self(uid); }
+    match /claims/{uid} { allow read: if signedIn(); allow create, update: if self(uid); allow delete: if isOwner() || self(uid); }
+
+    // Work data: only approved team members (and the Boss) can read or write.
+    match /wf_projects/{doc} { allow read, write: if isOwner() || linked(); }
+    match /tasks/{doc} { allow read: if isOwner() || linked(); allow write: if isAdmin(); }
+    match /taskdone/{uid} { allow read: if isOwner() || linked(); allow write: if isOwner() || (linked() && self(uid)); }
+    match /timelog/{uid} { allow read: if isOwner() || linked(); allow write: if isOwner() || (linked() && self(uid)); }
+    match /proposals/{uid} { allow read: if isOwner() || linked(); allow write: if isOwner() || (linked() && self(uid)); }
+
+    // Private per-person settings (notification read markers).
+    match /data/users/{uid}/{rest=**} { allow read, write: if self(uid); }
+  }
+}
